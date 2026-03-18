@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System — Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        /* Animated background blobs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        body::before {
+            width: 500px; height: 500px;
+            background: #6366f1;
+            top: -100px; left: -100px;
+            animation: blob1 8s ease-in-out infinite alternate;
+        }
+        body::after {
+            width: 400px; height: 400px;
+            background: #0ea5e9;
+            bottom: -100px; right: -100px;
+            animation: blob2 10s ease-in-out infinite alternate;
+        }
+        @keyframes blob1 { to { transform: translate(60px, 80px) scale(1.1); } }
+        @keyframes blob2 { to { transform: translate(-50px, -70px) scale(1.15); } }
+
+        .auth-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Logo */
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+        .auth-logo-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #6366f1, #0ea5e9);
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 8px 24px rgba(99,102,241,0.4);
+        }
+        .auth-logo h1 {
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .auth-logo p { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-top: 0.25rem; }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 1.75rem;
+            gap: 4px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #6366f1, #0ea5e9);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+        }
+
+        /* Form panels */
+        .form-panel { display: none; }
+        .form-panel.active { display: block; }
+
+        /* Form elements */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.65rem 0.9rem;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control::placeholder { color: rgba(255,255,255,0.25); }
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+        }
+        select.form-control option { background: #1e293b; color: #fff; }
+
+        /* Submit button */
+        .btn-submit {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #6366f1, #0ea5e9);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit:active { transform: scale(0.99); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Error */
+        .error-msg {
+            color: #f87171;
+            font-size: 0.82rem;
+            margin-top: 0.75rem;
+            text-align: center;
+            min-height: 1.2rem;
+        }
+
+        /* Demo credentials */
+        .demo-creds {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+        }
+        .demo-creds h4 {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.6rem;
+        }
+        .demo-creds ul { list-style: none; }
+        .demo-creds li {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.78rem;
+            padding: 0.2rem 0;
+        }
+        .demo-creds li strong { color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-logo">
+            <div class="auth-logo-icon">🎓</div>
+            <h1>Smart Attendance</h1>
+            <p>Face Recognition Attendance System</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+            <button class="tab-btn" id="registerTab" onclick="switchTab('register')">Create Account</button>
+        </div>
+
+        <!-- Login Form -->
+        <div class="form-panel active" id="loginPanel">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter your username" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" autocomplete="current-password" required>
+                </div>
+                <div class="error-msg" id="loginError"></div>
+                <button type="submit" class="btn-submit" id="loginBtn">Sign In</button>
+            </form>
+
+            <div class="demo-creds">
+                <h4>Demo Credentials</h4>
+                <ul>
+                    <li><strong>Admin:</strong> admin / admin123</li>
+                    <li><strong>Staff:</strong> staff / staff123</li>
+                    <li><strong>Student:</strong> student / student123</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-panel" id="registerPanel">
+            <form id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" id="regName" class="form-control" placeholder="Your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Roll Number</label>
+                        <input type="text" id="regRoll" class="form-control" placeholder="e.g. 21CSE001">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username *</label>
+                    <input type="text" id="regUsername" class="form-control" placeholder="Choose a username" autocomplete="username" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Department</label>
+                        <select id="regDept" class="form-control">
+                            <option value="">Select</option>
+                            <option>Computer Science</option>
+                            <option>Information Technology</option>
+                            <option>Electronics</option>
+                            <option>Mechanical</option>
+                            <option>Civil</option>
+                            <option>Electrical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <select id="regYear" class="form-control">
+                            <option value="">Select</option>
+                            <option>1st Year</option>
+                            <option>2nd Year</option>
+                            <option>3rd Year</option>
+                            <option>4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password *</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="Create a password" autocomplete="new-password" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email (optional)</label>
+                    <input type="email" id="regEmail" class="form-control" placeholder="student@college.edu">
+                </div>
+                <div class="error-msg" id="registerError"></div>
+                <button type="submit" class="btn-submit" id="registerBtn">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Tab switching ---
+        function switchTab(tab) {
+            document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+            document.getElementById('registerPanel').classList.toggle('active', tab === 'register');
+            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+            document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('registerError').textContent = '';
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('currentUser')) {
+            window.location.href = 'index.html';
+        }
+
+        // --- LOGIN ---
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const errEl = document.getElementById('loginError');
+            errEl.textContent = '';
+            btn.textContent = 'Signing in…';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value.trim(),
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    window.location.href = 'index.html';
+                } else {
+                    errEl.textContent = data.error || 'Invalid credentials';
+                    btn.textContent = 'Sign In';
+                    btn.disabled = false;
+                }
+            } catch {
+                errEl.textContent = 'Cannot connect to server';
+                btn.textContent = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+
+        // --- REGISTER ---
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            const errEl = document.getElementById('registerError');
+            errEl.textContent = '';
+            btn.textContent = 'Creating account…';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('regName').value.trim(),
+                        username: document.getElementById('regUsername').value.trim(),
+                        password: document.getElementById('regPassword').value,
+                        rollNumber: document.getElementById('regRoll').value.trim(),
+                        department: document.getElementById('regDept').value,
+                        year: document.getElementById('regYear').value,
+                        email: document.getElementById('regEmail').value.trim()
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    window.location.href = 'index.html';
+                } else {
+                    errEl.textContent = data.error || 'Registration failed';
+                    btn.textContent = 'Create Account';
+                    btn.disabled = false;
+                }
+            } catch {
+                errEl.textContent = 'Cannot connect to server';
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

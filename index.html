@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🎓</span>
+                <span>College Attendance</span>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
+                <li><a href="#" data-page="attendance" class="nav-link staff-admin-only">Mark Attendance</a></li>
+                <li><a href="#" data-page="register" class="nav-link staff-admin-only">Register Face</a></li>
+                <li><a href="#" data-page="analytics" class="nav-link admin-only">Analytics</a></li>
+                <li><a href="#" data-page="settings" class="nav-link admin-only">Settings</a></li>
+                <li><a href="#" data-page="profile" class="nav-link">Profile</a></li>
+                <li><a href="#" data-page="about" class="nav-link">About</a></li>
+                <li><a href="#" id="logoutBtn" class="nav-link" style="color: #ef4444; font-weight: bold;">Logout</a></li>
+                <li><a href="#" data-page="student-attendance" class="nav-link student-only">📷 Mark Attendance</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modal Container -->
+    <div id="modalContainer" class="modal-container"></div>
+
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <div class="hero">
+                <h1 id="greeting">Welcome</h1>
+                <p class="hero-subtitle">Smart, Fast, and Secure Attendance Tracking</p>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+
+            <div class="quick-actions" style="margin-bottom: 3rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary staff-admin-only" data-page="attendance">
+                    <span style="font-size: 1.25rem;">✅</span>
+                    <span>Manual Entry</span>
+                </button>
+                <button class="btn btn-primary student-only" data-page="student-attendance">
+                    <span style="font-size: 1.25rem;">📷</span>
+                    <span>Face Attendance</span>
+                </button>
+                <button class="btn btn-primary staff-admin-only" data-page="register">
+                    <span style="font-size: 1.25rem;">📸</span>
+                    <span>Register Student</span>
+                </button>
+                <button class="btn btn-primary admin-only" data-page="analytics">
+                    <span style="font-size: 1.25rem;">📊</span>
+                    <span>View Analytics</span>
+                </button>
+            </div>
+
+            <div class="stats-section">
+                <h2 class="section-title">Today's Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statPresent">0</div>
+                            <div class="stat-label">Present Today</div>
+                        </div>
+                    </div>
+                    <div class="stat-card card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statLate">0</div>
+                            <div class="stat-label">Late Arrivals</div>
+                        </div>
+                    </div>
+                    <div class="stat-card card">
+                        <div class="stat-icon">🚪</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statCheckedOut">0</div>
+                            <div class="stat-label">Checked Out</div>
+                        </div>
+                    </div>
+                    <div class="stat-card card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statRegistered">0</div>
+                            <div class="stat-label">Registered</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-grid">
+                <div class="card recent-activity-card">
+                    <h3 class="card-title">Recent Activity</h3>
+                    <div id="recentActivity" class="activity-list"></div>
+                </div>
+
+                <div class="card dept-breakdown-card">
+                    <h3 class="card-title">Department Breakdown</h3>
+                    <div id="departmentBreakdown" class="department-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mark Attendance Page -->
+        <div id="attendance" class="page">
+            <div class="page-header">
+                <h1 class="page-title">📝 Mark Attendance</h1>
+                <div class="page-actions">
+                    <button class="btn btn-outline staff-admin-only" id="exportAttendanceBtn">
+                        <span>📤 Export</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="attendance-layout">
+                <div class="attendance-form-section">
+                    <div class="card">
+                        <h3 class="card-title">Student Information</h3>
+                        <form id="attendanceForm">
+                            <div class="form-group">
+                                <label for="attStudentName" class="form-label">Student Name *</label>
+                                <input type="text" id="attStudentName" class="form-control" placeholder="Enter full name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="attRollNumber" class="form-label">Roll Number *</label>
+                                <input type="text" id="attRollNumber" class="form-control" placeholder="Enter roll number" required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="attDepartment" class="form-label">Department</label>
+                                    <select id="attDepartment" class="form-control"></select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="attYear" class="form-label">Year</label>
+                                    <select id="attYear" class="form-control"></select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="lateReasonGroup" style="display: none;">
+                                <label for="lateReason" class="form-label">Reason for Late Arrival</label>
+                                <textarea id="lateReason" class="form-control" rows="2" placeholder="Optional"></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" id="checkInBtn">
+                                    <span>✅ Check In</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="checkOutBtn">
+                                    <span>🚪 Check Out</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="attendance-records-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Today's Records</h3>
+                            <div class="filter-controls">
+                                <input type="text" id="searchRecords" class="form-control-sm" placeholder="Search...">
+                                <select id="filterDepartment" class="form-control-sm">
+                                    <option value="">All Departments</option>
+                                </select>
+                                <select id="filterStatus" class="form-control-sm">
+                                    <option value="">All Status</option>
+                                    <option value="Present">Present</option>
+                                    <option value="Late">Late</option>
+                                    <option value="Checked Out">Checked Out</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="attendanceRecords" class="records-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Face Page -->
+        <div id="register" class="page">
+            <div class="page-header">
+                <h1 class="page-title">📸 Register Student</h1>
+            </div>
+
+            <div class="registration-wizard">
+                <div class="wizard-steps">
+                    <div class="wizard-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Basic Info</div>
+                    </div>
+                    <div class="wizard-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Additional Details</div>
+                    </div>
+                    <div class="wizard-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Photo Capture</div>
+                    </div>
+                    <div class="wizard-step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Review &amp; Confirm</div>
+                    </div>
+                </div>
+
+                <div class="wizard-content">
+                    <!-- Step 1: Basic Info -->
+                    <div class="wizard-panel active" id="step1">
+                        <div class="card">
+                            <h3 class="card-title">Basic Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="regStudentName" class="form-label">Student Name *</label>
+                                    <input type="text" id="regStudentName" class="form-control" placeholder="Enter full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="regRollNumber" class="form-label">Roll Number *</label>
+                                    <input type="text" id="regRollNumber" class="form-control" placeholder="Enter roll number" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="regDepartment" class="form-label">Department</label>
+                                    <select id="regDepartment" class="form-control"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="regYear" class="form-label">Year</label>
+                                    <select id="regYear" class="form-control"></select>
+                                </div>
+                            </div>
+                            <div class="wizard-actions">
+                                <button class="btn btn-primary" id="step1Next">Next →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Additional Details -->
+                    <div class="wizard-panel" id="step2">
+                        <div class="card">
+                            <h3 class="card-title">Additional Details</h3>
+                            <div class="form-group">
+                                <label for="regEmail" class="form-label">Email Address</label>
+                                <input type="email" id="regEmail" class="form-control" placeholder="student@college.edu">
+                            </div>
+                            <div class="form-group">
+                                <label for="regPhone" class="form-label">Phone Number</label>
+                                <input type="tel" id="regPhone" class="form-control" placeholder="+91 1234567890">
+                            </div>
+                            <div class="form-group">
+                                <label for="regAddress" class="form-label">Address</label>
+                                <textarea id="regAddress" class="form-control" rows="3" placeholder="Enter address"></textarea>
+                            </div>
+                            <div class="wizard-actions">
+                                <button class="btn btn-outline" id="step2Prev">← Previous</button>
+                                <button class="btn btn-primary" id="step2Next">Next →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Photo Capture -->
+                    <div class="wizard-panel" id="step3">
+                        <div class="card">
+                            <h3 class="card-title">Capture Photos</h3>
+                            <p class="text-muted">Capture 3-5 photos for better recognition</p>
+                            <div class="camera-section">
+                                <div class="video-container">
+                                    <video id="video" autoplay playsinline></video>
+                                    <canvas id="canvas" style="display: none;"></canvas>
+                                </div>
+                                <div class="camera-controls">
+                                    <button class="btn btn-primary" id="startCamera">📷 Start Camera</button>
+                                    <button class="btn btn-secondary" id="capturePhoto" disabled>📸 Capture Photo</button>
+                                    <button class="btn btn-outline" id="stopCamera" disabled>⏹️ Stop</button>
+                                </div>
+                                <div id="capturedPhotos" class="captured-photos"></div>
+                            </div>
+                            <div class="wizard-actions">
+                                <button class="btn btn-outline" id="step3Prev">← Previous</button>
+                                <button class="btn btn-primary" id="step3Next">Next →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Review -->
+                    <div class="wizard-panel" id="step4">
+                        <div class="card">
+                            <h3 class="card-title">Review &amp; Confirm</h3>
+                            <div id="reviewContent" class="review-content"></div>
+                            <div class="wizard-actions">
+                                <button class="btn btn-outline" id="step4Prev">← Previous</button>
+                                <button class="btn btn-primary" id="finalRegister">✅ Register Student</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h3 class="card-title">Registered Students</h3>
+                    <div class="filter-controls">
+                        <input type="text" id="searchStudents" class="form-control-sm" placeholder="Search students...">
+                        <select id="filterRegDepartment" class="form-control-sm">
+                            <option value="">All Departments</option>
+                        </select>
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid">◫</button>
+                            <button class="view-btn" data-view="list">☰</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="registeredStudents" class="students-grid"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analytics" class="page">
+            <div class="page-header">
+                <h1 class="page-title">📊 Analytics Dashboard</h1>
+                <div class="date-range-selector">
+                    <select id="dateRange" class="form-control-sm">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="card">
+                    <h3 class="card-title">Attendance Overview</h3>
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Department Comparison</h3>
+                    <div class="chart-container">
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Weekly Trends</h3>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Top Students</h3>
+                    <div id="topStudents" class="leaderboard"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings" class="page">
+            <div class="page-header">
+                <h1 class="page-title">⚙️ Settings</h1>
+            </div>
+
+            <div class="settings-grid">
+                <div class="card">
+                    <h3 class="card-title">Time Settings</h3>
+                    <div class="form-group">
+                        <label for="officeStartTime" class="form-label">Office Start Time</label>
+                        <input type="time" id="officeStartTime" class="form-control" value="09:00">
+                    </div>
+                    <div class="form-group">
+                        <label for="officeEndTime" class="form-label">Office End Time</label>
+                        <input type="time" id="officeEndTime" class="form-control" value="17:00">
+                    </div>
+                    <div class="form-group">
+                        <label for="lateThreshold" class="form-label">Late Threshold (minutes)</label>
+                        <input type="number" id="lateThreshold" class="form-control" value="15" min="0">
+                    </div>
+                    <button class="btn btn-primary" id="saveTimeSettings">Save Settings</button>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Department Management</h3>
+                    <div class="form-group">
+                        <label for="newDepartment" class="form-label">Add Department</label>
+                        <div class="input-group">
+                            <input type="text" id="newDepartment" class="form-control" placeholder="Department name">
+                            <button class="btn btn-primary" id="addDepartment">Add</button>
+                        </div>
+                    </div>
+                    <div id="departmentsList" class="settings-list"></div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Geofencing Restrictions</h3>
+                    <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 1rem;">Set the physical boundaries students must be inside to check-in.</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="campusLat" class="form-label">Latitude</label>
+                            <input type="number" step="any" id="campusLat" class="form-control" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="campusLng" class="form-label">Longitude</label>
+                            <input type="number" step="any" id="campusLng" class="form-control" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="campusRadius" class="form-label">Allowed Radius (meters)</label>
+                        <input type="number" id="campusRadius" class="form-control" value="200" min="10">
+                    </div>
+                    <div class="settings-actions" style="margin-top: 1rem;">
+                        <button class="btn btn-outline" id="useCurrentLocationBtn">📍 Use My Location</button>
+                        <button class="btn btn-primary" id="saveLocationSettings">Save Location</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Data Management</h3>
+                    <div class="settings-actions">
+                        <button class="btn btn-primary" id="exportAllData">📤 Export All Data</button>
+                        <button class="btn btn-outline" id="importData">📥 Import Data</button>
+                        <button class="btn btn-danger" id="clearAllData">🗑️ Clear All Data</button>
+                    </div>
+                    <input type="file" id="importFileInput" accept=".json" style="display: none;">
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Appearance</h3>
+                    <div class="form-group">
+                        <label class="form-label">Theme</label>
+                        <div class="theme-options">
+                            <label class="radio-label">
+                                <input type="radio" name="theme" value="light" checked>
+                                <span>Light (Ash &amp; White)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="theme" value="dark">
+                                <span>Dark (Coming Soon)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about" class="page">
+            <div class="about-container">
+                <div class="card">
+                    <h2 class="about-title">About College Attendance System</h2>
+                    <p class="about-text">A modern, efficient attendance management solution designed for educational institutions. Track attendance in real-time with advanced face registration and comprehensive analytics.</p>
+
+                    <h3 class="about-subtitle">✨ Key Features</h3>
+                    <ul class="about-list">
+                        <li>Real-time attendance tracking with instant updates</li>
+                        <li>Secure face registration and verification</li>
+                        <li>Comprehensive analytics and reporting dashboard</li>
+                        <li>Department-wise attendance management</li>
+                    </ul>
+
+                    <h3 class="about-subtitle">📱 How It Works</h3>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-num">1</div>
+                            <h4>Register Your Face</h4>
+                            <p>Capture your photo and enter your details in the system</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-num">2</div>
+                            <h4>Mark Attendance</h4>
+                            <p>Check in and out daily with automatic time tracking</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-num">3</div>
+                            <h4>View Analytics</h4>
+                            <p>Access your attendance records and statistics anytime</p>
+                        </div>
+                    </div>
+
+                    <h3 class="about-subtitle">🔒 Technology &amp; Security</h3>
+                    <p class="about-text">Built with modern web technologies for fast, reliable performance. All data is securely managed with privacy as a priority.</p>
+
+                    <div class="about-footer">
+                        <p>"Smart Attendance, Smarter Future 🎓"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Student Face Attendance Page -->
+        <div id="student-attendance" class="page student-only">
+            <div class="page-header">
+                <h1 class="page-title">📷 Mark Attendance</h1>
+            </div>
+            <div class="student-att-grid">
+                <!-- Camera Card -->
+                <div class="card sa-camera-card">
+                    <h3 class="card-title">Face Recognition</h3>
+                    <p class="text-muted" style="margin-bottom:1rem;">Click <strong>Start Camera</strong>, position your face, then click <strong>Capture &amp; Recognize</strong>.</p>
+                    <div id="sa-status-banner" class="sa-status-banner sa-status-idle">
+                        <span id="sa-status-icon">📷</span>
+                        <span id="sa-status-text">Camera not started</span>
+                    </div>
+
+                    <!-- Face Registration Warning (for students) -->
+                    <div id="sa-reg-notice" class="sa-status-banner sa-status-processing" style="display:none; margin-bottom: 1.5rem; flex-direction: column; align-items: flex-start; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+                            <span>⚠️ Face Not Registered</span>
+                        </div>
+                        <p style="font-size: 0.8rem; font-weight: 400; opacity: 0.9;">You must register your face data before you can mark attendance. This takes about 30 seconds.</p>
+                        <button class="btn btn-primary btn-sm" id="sa-start-reg-btn" style="width: auto; padding: 0.4rem 1rem;">Start Face Registration</button>
+                    </div>
+
+                    <div class="sa-video-wrapper">
+                        <video id="sa-video" autoplay playsinline muted></video>
+                        <canvas id="sa-canvas" style="display:none;"></canvas>
+                        <div class="sa-scanning-line" id="sa-scanning-line" style="display:none;"></div>
+                    </div>
+                    <div class="sa-controls">
+                        <button class="btn btn-primary" id="sa-start-btn">📷 Start Camera</button>
+                        <button class="btn sa-recognize-btn" id="sa-capture-btn" disabled>🔍 Capture &amp; Recognize</button>
+                        <button class="btn btn-outline" id="sa-stop-btn" disabled>⏹️ Stop</button>
+                    </div>
+                    <div id="sa-result-panel" class="sa-result-panel" style="display:none;">
+                        <div class="sa-result-icon" id="sa-result-icon">✅</div>
+                        <div class="sa-result-text" id="sa-result-text">Attendance Marked!</div>
+                        <div class="sa-result-sub" id="sa-result-sub"></div>
+                    </div>
+                </div>
+                <!-- Info & History -->
+                <div class="sa-info-col">
+                    <div class="card sa-profile-card">
+                        <h3 class="card-title">My Profile</h3>
+                        <div class="sa-profile-info">
+                            <div class="sa-avatar">👤</div>
+                            <div class="sa-profile-details">
+                                <div class="sa-profile-name" id="sa-profile-name">—</div>
+                                <div class="sa-profile-roll" id="sa-profile-roll">Roll: —</div>
+                                <div class="sa-profile-dept" id="sa-profile-dept">Dept: —</div>
+                                <a href="#" data-page="profile" class="nav-link" style="font-size: 0.8rem; color: var(--primary-color); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: 5px;">
+                                    <span>✏️ Edit Profile</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="sa-today-status" id="sa-today-status">
+                            <span class="status-badge status-pending">Today: Not Marked</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">My Attendance History</h3>
+                            <button class="btn btn-outline btn-sm" id="sa-export-btn">📤 Export CSV</button>
+                        </div>
+                        <div id="sa-history-list" class="sa-history-list">
+                            <div class="empty-state" style="padding:2rem;">
+                                <div class="empty-state-icon">📋</div>
+                                <p>Loading history…</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Profile Page -->
+        <div id="profile" class="page">
+            <div class="page-header">
+                <h1 class="page-title">👤 My Profile</h1>
+            </div>
+
+            <div class="profile-layout">
+                <div class="card profile-card" style="max-width: 800px; margin: 0 auto;">
+                    <div class="profile-header" style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color);">
+                        <div class="profile-avatar" id="profileAvatar" style="width: 100px; height: 100px; background: var(--primary-color); color: white; font-size: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">👤</div>
+                        <h2 id="profileNameDisplay" style="margin-bottom: 0.5rem;">User Name</h2>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 1rem;">
+                            <span id="profileRoleDisplay" class="badge">Student</span>
+                            <button class="btn btn-sm btn-outline" id="toggleEditBtn" type="button">✏️ Edit Details</button>
+                        </div>
+                    </div>
+                    
+                    <form id="profileForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profName" class="form-label">Full Name</label>
+                                <input type="text" id="profName" class="form-control" placeholder="Update name">
+                            </div>
+                            <div class="form-group">
+                                <label for="profUsername" class="form-label">Username</label>
+                                <input type="text" id="profUsername" class="form-control" readonly disabled title="Username cannot be changed">
+                            </div>
+                        </div>
+
+                        <div class="form-row student-only">
+                            <div class="form-group">
+                                <label for="profRollNumber" class="form-label">Roll Number</label>
+                                <input type="text" id="profRollNumber" class="form-control" readonly disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="profDept" class="form-label">Department</label>
+                                <input type="text" id="profDept" class="form-control" readonly disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profEmail" class="form-label">Email Address</label>
+                                <input type="email" id="profEmail" class="form-control" placeholder="example@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="profPhone" class="form-label">Phone Number</label>
+                                <input type="tel" id="profPhone" class="form-control" placeholder="+91 0000000000">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profPassword" class="form-label">Change Password (leave blank to keep current)</label>
+                            <input type="password" id="profPassword" class="form-control" placeholder="New password">
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary" id="updateProfileBtn" style="width: 100%;">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end .container -->
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
